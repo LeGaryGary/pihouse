@@ -17,4 +17,4 @@ WORKDIR /go/src/pihouse
 
 COPY --from=builder . .
 
-CMD ["./main"]
+CMD ["./pihouse"]
