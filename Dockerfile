@@ -3,7 +3,10 @@ FROM golang:1.11.1-alpine3.7 as builder
 WORKDIR /go/src/app
 COPY . .
 
-RUN go get -d -v 
+#RUN go get -d -v 
+ENV GOOS=linux
+ENV GOARCH=arm
+ENV GOARM=6
 RUN go build -v
 
 FROM arm32v6/alpine:3.7
