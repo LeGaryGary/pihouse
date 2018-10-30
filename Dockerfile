@@ -8,6 +8,8 @@ RUN go build -v
 
 FROM arm32v6/alpine:3.7
 
+WORKDIR /go/src/app
+
 COPY --from=builder . .
 
-CMD ["./pihouse"]
+CMD ["./app"]
