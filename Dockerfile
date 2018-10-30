@@ -15,6 +15,6 @@ FROM arm32v6/alpine:3.7
 
 WORKDIR /go/src/pihouse
 
-COPY --from=builder . .
+COPY --from=builder pihouse .
 
 CMD ["./pihouse"]
