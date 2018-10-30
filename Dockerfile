@@ -1,4 +1,4 @@
-FROM arm32v6/golang:1.11.1-alpine3.7 as builder
+FROM golang:1.11.1-alpine3.7 as builder
 
 WORKDIR /go/src/app
 COPY . .
