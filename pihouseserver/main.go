@@ -4,8 +4,11 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"pihouse/pihouseserver/api"
 	"pihouse/pihouseserver/db"
+	"strings"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/spf13/viper"
@@ -36,12 +39,42 @@ func Routes() *chi.Mux {
 		middleware.Recoverer,
 	)
 
+	// Routing for API
 	router.Route("/v1", func(r chi.Router) {
 		r.Mount("/api/temperature", api.TemperatureRoutes(ProvideTemperaureRepository))
 		r.Mount("/api/node", api.NodeRoutes(ProvideNodeRepository))
 	})
 
+	// Rediret to UI
+	router.Get("/", http.RedirectHandler("/ui", 301).ServeHTTP)
+	// Get path of current executable
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Serve UI from wwwroot
+	filesDir := filepath.Join(dir, "wwwroot")
+	FileServer(router, "/ui", http.Dir(filesDir))
+
 	return router
+}
+
+func FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit URL parameters.")
+	}
+
+	fs := http.StripPrefix(path, http.FileServer(root))
+
+	// if path != "/" && path[len(path)-1] != '/' {
+	// 	r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+	// 	path += "/"
+	// }
+	// path += "*"
+
+	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs.ServeHTTP(w, r)
+	}))
 }
 
 func main() {

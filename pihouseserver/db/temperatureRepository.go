@@ -32,7 +32,7 @@ func (repository *SQLTemperatureRepository) GetReadingByID(ID int) *data.Tempera
 
 func (repository *SQLTemperatureRepository) GetAllReadings() []*data.TemperatureReading {
 	var reading []*data.TemperatureReading
-	if err := repository.Connection.Preload("Node").Find(&reading).Error; err != nil {
+	if err := repository.Connection.Find(&reading).Error; err != nil {
 		panic(err)
 	}
 	return reading

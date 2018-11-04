@@ -98,6 +98,6 @@ func main() {
 
 	nodeID := getNodeID()
 
-	gocron.Every(1).Second().Do(func() { postCurrentTemperature(nodeID) })
+	gocron.Every(1).Minute().Do(func() { postCurrentTemperature(nodeID) })
 	<-gocron.Start()
 }
