@@ -52,5 +52,5 @@ func main() {
 		panic(err.Error())
 	}
 	db.AutoMigrate(dbret)
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":1337", router))
 }

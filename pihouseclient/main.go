@@ -6,7 +6,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"pihouse/data"
+	"strings"
 
 	"github.com/spf13/viper"
 
@@ -19,7 +21,15 @@ var (
 )
 
 func getTemperature() decimal.Decimal {
-	val, err := decimal.NewFromString("45.5")
+	cmd := exec.Command("/opt/vc/bin/vcgencmd", "measure_temp")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		panic(err.Error())
+	}
+	outString := out.String()
+	outArray := strings.Split(outString, "=")
+	val, err := decimal.NewFromString(outArray[1])
 	if err != nil {
 		panic(err.Error())
 	}
