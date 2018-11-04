@@ -4,11 +4,15 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"pihouse/api/temperature"
+	"pihouse/pihouseserver/api"
+	"pihouse/pihouseserver/db"
 
 	"github.com/go-chi/chi/middleware"
+	"github.com/spf13/viper"
 
 	_ "github.com/denisenkom/go-mssqldb"
+	_ "github.com/jinzhu/gorm/dialects/mssql"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
@@ -33,23 +37,20 @@ func Routes() *chi.Mux {
 	)
 
 	router.Route("/v1", func(r chi.Router) {
-		r.Mount("/api/temperature", temperature.Routes())
+		r.Mount("/api/temperature", api.TemperatureRoutes(ProvideTemperaureRepository))
+		r.Mount("/api/node", api.NodeRoutes(ProvideNodeRepository))
 	})
 
 	return router
 }
 
 func main() {
+	viper.AutomaticEnv()
 	router := Routes()
-
-	// walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-	// 	log.Panicf("%s %s\n", method, route)
-	// 	return nil
-	// }
-
-	// if err := chi.Walk(router, walkFunc); err != nil {
-	// 	log.Panicf("Logging err: %s\n", err.Error())
-	// }
-
+	dbret, err := ProvideDB()
+	if err != nil {
+		panic(err.Error())
+	}
+	db.AutoMigrate(dbret)
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

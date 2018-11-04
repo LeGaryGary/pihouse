@@ -13,8 +13,8 @@ RUN go build -v
 
 FROM arm32v6/alpine:3.7
 
-WORKDIR /go/src/pihouse
+WORKDIR /pihouse
 
-COPY --from=builder pihouse .
+COPY --from=builder pihouseclient .
 
-CMD ["./pihouse"]
+CMD ["./pihouseclient"]
