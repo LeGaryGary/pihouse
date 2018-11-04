@@ -28,8 +28,8 @@ func getTemperature() decimal.Decimal {
 		panic(err.Error())
 	}
 	outString := out.String()
-	outArray := strings.Split(outString, "=")
-	val, err := decimal.NewFromString(outArray[1])
+	tempString := outString[strings.IndexByte(outString, '=')+1 : strings.IndexByte(outString, '\'')]
+	val, err := decimal.NewFromString(tempString)
 	if err != nil {
 		panic(err.Error())
 	}
