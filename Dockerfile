@@ -18,6 +18,6 @@ FROM arm32v6/alpine:3.7
 
 WORKDIR /pihouse
 
-COPY --from=builder . .
+COPY --from=builder /go/src/pihouse/pihouseclient .
 
 CMD ["/bin/bash"]
