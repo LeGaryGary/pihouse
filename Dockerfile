@@ -5,18 +5,19 @@ COPY . .
 
 WORKDIR /go/src/pihouse/pihouseclient
 
+RUN export GOOS=linux
+RUN export GOARCH=arm
+RUN export GOARM=6
 RUN apk add --no-cache git mercurial \
     && go get -d -v \
     && apk del git mercurial
-ENV GOOS=linux
-ENV GOARCH=arm
-ENV GOARM=6
+
 RUN go build -v
 
 FROM arm32v6/alpine:3.7
 
 WORKDIR /pihouse
 
-COPY --from=builder pihouseclient .
+COPY --from=builder . .
 
-CMD ["./pihouseclient"]
+CMD ["/bin/bash"]
