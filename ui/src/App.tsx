@@ -1,9 +1,29 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import ReactEcharts, { ObjectMap } from 'echarts-for-react';
 
-class App extends Component {
+interface IProps{
+
+}
+
+interface IState{
+  data: []
+}
+
+class App extends Component<IProps, IState> {
+  constructor(props: any){
+    super(props);
+    this.state = {data: []}
+  }
+
+  async componentDidMount() {
+    const data = (await fetch("http://stupifybot.com:1337/v1/api/temperature")
+    .then(v => {console.log(v); return v.json()})
+    .then(json => json.map((reading: TemperatureReading) => [reading.CreatedAt, reading.Value]))
+    );
+    this.setState({data: data});
+  }
+
   render() {
     return (
       <div className="App">
@@ -25,8 +45,8 @@ class App extends Component {
             notMerge={true}
             style={
               {
-                width:'200px',
-                height:'200px'
+                width:window.innerWidth,
+                height:window.innerHeight
               }          
             }
           />
@@ -44,15 +64,16 @@ class App extends Component {
           type: 'value'
       },
       series: [{
-          data: [820, 932, 901, 934, 1290, 1330, 1320],
-          type: 'line'
+          data: this.state.data,
+          type: 'scatter'
       }]
     }
   };
+}
 
-  private getDate = async (): Promise<ObjectMap> => {
-    return await fetch("http://stupifybot.com:1337/v1/api/temperature").then
-  }
+interface TemperatureReading{
+  CreatedAt: string,
+  Value: string
 }
 
 export default App;

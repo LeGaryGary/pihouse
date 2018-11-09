@@ -17,6 +17,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mssql"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 )
 
@@ -28,10 +29,28 @@ var (
 	user     = flag.String("user", "", "the database user")
 )
 
+func enableCors(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		(w).Header().Set("Access-Control-Allow-Origin", "*")
+	})
+}
+
 //Routes sets up the base routes for the api
 func Routes() *chi.Mux {
+	cors := cors.New(cors.Options{
+		// AllowedOrigins: []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+
 	router := chi.NewRouter()
 	router.Use(
+		cors.Handler,
 		render.SetContentType(render.ContentTypeJSON),
 		middleware.Logger,
 		middleware.DefaultCompress,
