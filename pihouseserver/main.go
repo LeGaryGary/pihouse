@@ -4,8 +4,6 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"pihouse/pihouseserver/api"
 	"pihouse/pihouseserver/db"
 	"strings"
@@ -67,13 +65,14 @@ func Routes() *chi.Mux {
 	// Rediret to UI
 	router.Get("/", http.RedirectHandler("/ui", 301).ServeHTTP)
 	// Get path of current executable
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
+	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 	// Serve UI from wwwroot
-	filesDir := filepath.Join(dir, "wwwroot")
-	FileServer(router, "/ui", http.Dir(filesDir))
+	//filesDir := filepath.Join(dir, "wwwroot")
+	//log.Printf(filesDir)
+	FileServer(router, "/ui", http.Dir("./wwwroot/"))
 
 	return router
 }
@@ -89,9 +88,10 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	// 	r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
 	// 	path += "/"
 	// }
-	// path += "*"
+	//path += "*"
 
 	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf(r.RequestURI)
 		fs.ServeHTTP(w, r)
 	}))
 }
