@@ -97,10 +97,6 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 	if err != nil {
 		log.Fatal(err)
 	}
-	stream, err := client.StreamingRecognize(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	frameSize := porcupine.FrameLength()
 	audioFrame := make([]int16, frameSize)
@@ -128,6 +124,10 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 				log.Printf("detected word: \"%s\"", word)
 				log.Printf("Initiating up voice recognition")
 				// Send the initial configuration message.
+				stream, err := client.StreamingRecognize(ctx)
+				if err != nil {
+					log.Fatal(err)
+				}
 				if err := stream.Send(&speechpb.StreamingRecognizeRequest{
 					StreamingRequest: &speechpb.StreamingRecognizeRequest_StreamingConfig{
 						StreamingConfig: &speechpb.StreamingRecognitionConfig{
