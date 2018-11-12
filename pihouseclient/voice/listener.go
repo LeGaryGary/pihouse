@@ -101,20 +101,6 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Send the initial configuration message.
-	if err := stream.Send(&speechpb.StreamingRecognizeRequest{
-		StreamingRequest: &speechpb.StreamingRecognizeRequest_StreamingConfig{
-			StreamingConfig: &speechpb.StreamingRecognitionConfig{
-				Config: &speechpb.RecognitionConfig{
-					Encoding:        speechpb.RecognitionConfig_LINEAR16,
-					SampleRateHertz: 16000,
-					LanguageCode:    "en-US",
-				},
-			},
-		},
-	}); err != nil {
-		log.Fatal(err)
-	}
 
 	frameSize := porcupine.FrameLength()
 	audioFrame := make([]int16, frameSize)
@@ -141,6 +127,23 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 
 			if word != "" {
 				log.Printf("detected word: \"%s\"", word)
+				log.Printf("Initiating up voice recognition")
+				// Send the initial configuration message.
+				if err := stream.Send(&speechpb.StreamingRecognizeRequest{
+					StreamingRequest: &speechpb.StreamingRecognizeRequest_StreamingConfig{
+						StreamingConfig: &speechpb.StreamingRecognitionConfig{
+							Config: &speechpb.RecognitionConfig{
+								Encoding:        speechpb.RecognitionConfig_LINEAR16,
+								SampleRateHertz: 16000,
+								LanguageCode:    "en-US",
+							},
+						},
+					},
+				}); err != nil {
+					log.Fatal(err)
+				}
+
+				log.Printf("Starting voice stream...")
 				apiStreamStopChan := make(chan bool)
 				go func() {
 					// Pipe stdin to the API.
