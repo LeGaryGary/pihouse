@@ -106,9 +106,8 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 	audioFrame := make([]int16, frameSize)
 	buffer := make([]byte, frameSize*2)
 
-	log.Printf("listening...")
-
 	for {
+		log.Printf("listening...")
 		select {
 		case <-shutdownChan:
 			log.Printf("shutting down")
