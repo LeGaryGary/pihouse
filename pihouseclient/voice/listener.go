@@ -179,6 +179,7 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 
 				resp, err := stream.Recv()
 				if err == io.EOF {
+					apiStreamStopChan <- true
 					continue
 				}
 				if err != nil {
@@ -194,6 +195,7 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 				for _, result := range resp.Results {
 					fmt.Printf("Result: %+v\n", result)
 				}
+				apiStreamStopChan <- true
 				// [END speech_transcribe_streaming_mic]
 			}
 		}
