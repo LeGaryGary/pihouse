@@ -7,8 +7,13 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"pihouse/data"
+	"pihouse/pihouseclient/messageprocessing"
+	"pihouse/pihouseclient/voice"
 	"strings"
+
+	"github.com/jsgoecke/go-wit"
 
 	"github.com/spf13/viper"
 
@@ -93,6 +98,9 @@ func newNode(hostname string) uint {
 }
 
 func main() {
+	shutdownChan := make(chan os.Signal, 1)
+	signal.Notify(shutdownChan, os.Interrupt)
+
 	viper.AutomaticEnv()
 	apiAddress = viper.GetString("ApiAddress")
 
@@ -100,4 +108,11 @@ func main() {
 
 	gocron.Every(1).Minute().Do(func() { postCurrentTemperature(nodeID) })
 	<-gocron.Start()
+}
+
+func listen(shutdownChan <-chan os.Signal) {
+	messageChan := make(chan string)
+	go voice.Listen(shutdownChan, messageChan)
+	intentChan := make(chan []wit.Outcome)
+	go messageprocessing.GetIntent(shutdownChan, messageChan, intentChan)
 }

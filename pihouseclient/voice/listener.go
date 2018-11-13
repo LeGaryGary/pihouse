@@ -1,4 +1,4 @@
-package main
+package voice
 
 import (
 	"bufio"
@@ -11,7 +11,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/signal"
 	"strconv"
 	"strings"
 
@@ -46,7 +45,7 @@ func (kf *keywordFlags) String() string {
 	return sb.String()
 }
 
-func main() {
+func Listen(shutdownChan <-chan os.Signal, messageChan chan string) {
 	log.Printf("Starting!")
 	var input string
 	var modelPath string
@@ -81,13 +80,10 @@ func main() {
 		audio = bufio.NewReader(f)
 	}
 
-	shutdownChan := make(chan os.Signal, 1)
-	signal.Notify(shutdownChan, os.Interrupt)
-
-	listen(p, audio, shutdownChan)
+	listen(p, audio, shutdownChan, messageChan)
 }
 
-func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signal) {
+func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signal, messageChan chan string) {
 
 	// == Setup google voice API
 	ctx := context.Background()
@@ -194,6 +190,7 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 				}
 				for _, result := range resp.Results {
 					fmt.Printf("Result: %+v\n", result)
+					messageChan <- result.Alternatives[0].Transcript
 				}
 				apiStreamStopChan <- true
 				// [END speech_transcribe_streaming_mic]
