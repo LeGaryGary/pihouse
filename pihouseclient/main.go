@@ -101,6 +101,8 @@ func main() {
 	shutdownChan := make(chan os.Signal, 1)
 	signal.Notify(shutdownChan, os.Interrupt)
 
+	listen(shutdownChan)
+
 	viper.AutomaticEnv()
 	apiAddress = viper.GetString("ApiAddress")
 
