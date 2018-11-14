@@ -8,10 +8,11 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"pihouse/data"
-	"pihouse/pihouseclient/messageprocessing"
-	"pihouse/pihouseclient/voice"
 	"strings"
+
+	"github.com/Jordank321/pihouse/data"
+	"github.com/Jordank321/pihouse/pihouseclient/messageprocessing"
+	"github.com/Jordank321/pihouse/pihouseclient/voice"
 
 	"github.com/jsgoecke/go-wit"
 
