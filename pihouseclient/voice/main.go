@@ -1,4 +1,4 @@
-package voice
+package main
 
 import (
 	"bufio"
@@ -11,13 +11,26 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 
 	speech "cloud.google.com/go/speech/apiv1"
+	"github.com/Jordank321/pihouse/pihouseclient/messageprocessing"
 	porcupine "github.com/charithe/porcupine-go"
+	wit "github.com/jsgoecke/go-wit"
 	speechpb "google.golang.org/genproto/googleapis/cloud/speech/v1"
 )
+
+func main() {
+	shutdownChan := make(chan os.Signal, 1)
+	signal.Notify(shutdownChan, os.Interrupt)
+
+	messageChan := make(chan string)
+	go Listen(shutdownChan, messageChan)
+	intentChan := make(chan []wit.Outcome)
+	messageprocessing.GetIntent(shutdownChan, messageChan, intentChan)
+}
 
 type keywordFlags []*porcupine.Keyword
 
