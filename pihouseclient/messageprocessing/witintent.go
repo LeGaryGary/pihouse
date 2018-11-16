@@ -21,6 +21,7 @@ func GetIntent(shutdownChan <-chan os.Signal, msg <-chan string, intent chan []w
 			result, err := client.Message(request)
 			if err != nil {
 				log.Printf(err.Error())
+				continue
 			}
 			intent <- result.Outcomes
 		}
