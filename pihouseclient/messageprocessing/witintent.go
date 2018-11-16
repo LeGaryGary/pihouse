@@ -11,14 +11,19 @@ var client = wit.NewClient(os.Getenv("WIT_ACCESS_TOKEN"))
 
 func GetIntent(shutdownChan <-chan os.Signal, msg <-chan string, intent chan []wit.Outcome) {
 	for {
-		// Process a text message
-		request := &wit.MessageRequest{}
-		request.Query = <-msg
-		result, err := client.Message(request)
-		if err != nil {
-			log.Printf(err.Error())
+		select {
+		case <-shutdownChan:
+			return
+		default:
+			// Process a text message
+			request := &wit.MessageRequest{}
+			request.Query = <-msg
+			result, err := client.Message(request)
+			if err != nil {
+				log.Printf(err.Error())
+			}
+			intent <- result.Outcomes
 		}
-		intent <- result.Outcomes
 	}
 }
 

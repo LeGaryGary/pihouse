@@ -29,7 +29,8 @@ func main() {
 	messageChan := make(chan string)
 	go Listen(shutdownChan, messageChan)
 	intentChan := make(chan []wit.Outcome)
-	messageprocessing.GetIntent(shutdownChan, messageChan, intentChan)
+	go messageprocessing.GetIntent(shutdownChan, messageChan, intentChan)
+	messageprocessing.ProcessIntent(shutdownChan, intentChan)
 }
 
 type keywordFlags []*porcupine.Keyword
