@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -14,8 +15,12 @@ import (
 )
 
 func getTemperature() float32 {
-	temperature, humidity, retried, err :=
+	temperature, _, _, err :=
 		dht.ReadDHTxxWithRetry(dht.DHT11, 4, true, 10)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	// cmd := exec.Command("/opt/vc/bin/vcgencmd", "measure_temp")
 	// var out bytes.Buffer
