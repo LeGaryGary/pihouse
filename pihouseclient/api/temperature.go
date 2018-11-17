@@ -16,7 +16,7 @@ import (
 
 func getTemperature() float32 {
 	temperature, _, _, err :=
-		dht.ReadDHTxxWithRetry(dht.DHT11, 4, true, 10)
+		dht.ReadDHTxxWithRetry(dht.DHT11, 2, true, 10)
 
 	if err != nil {
 		log.Println(err.Error())
