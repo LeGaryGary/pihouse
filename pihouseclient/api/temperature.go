@@ -6,8 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/Jordank321/pihouse/data"
 	"github.com/shopspring/decimal"
@@ -15,23 +13,23 @@ import (
 	"github.com/d2r2/go-dht"
 )
 
-func getTemperature() decimal.Decimal {
+func getTemperature() float32 {
 	temperature, humidity, retried, err :=
 		dht.ReadDHTxxWithRetry(dht.DHT11, 4, true, 10)
 
-	cmd := exec.Command("/opt/vc/bin/vcgencmd", "measure_temp")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	if err := cmd.Run(); err != nil {
-		panic(err.Error())
-	}
-	outString := out.String()
-	tempString := outString[strings.IndexByte(outString, '=')+1 : strings.IndexByte(outString, '\'')]
-	val, err := decimal.NewFromString(tempString)
-	if err != nil {
-		panic(err.Error())
-	}
-	return val
+	// cmd := exec.Command("/opt/vc/bin/vcgencmd", "measure_temp")
+	// var out bytes.Buffer
+	// cmd.Stdout = &out
+	// if err := cmd.Run(); err != nil {
+	// 	panic(err.Error())
+	// }
+	// outString := out.String()
+	// tempString := outString[strings.IndexByte(outString, '=')+1 : strings.IndexByte(outString, '\'')]
+	// val, err := decimal.NewFromString(tempString)
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	return temperature
 }
 
 func postTemperature(val decimal.Decimal, nodeID uint) {
@@ -47,5 +45,5 @@ func postTemperature(val decimal.Decimal, nodeID uint) {
 
 // PostCurrentTemperature does what is says on the tin you twats
 func PostCurrentTemperature(nodeID uint) {
-	postTemperature(getTemperature(), nodeID)
+	postTemperature(decimal.NewFromFloat32(getTemperature()), nodeID)
 }
