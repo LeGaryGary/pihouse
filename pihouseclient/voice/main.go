@@ -161,6 +161,8 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 						select {
 						case <-apiStreamStopChan:
 							return
+						case <-shutdownChan:
+							return
 						default:
 							n, err := os.Stdin.Read(buf)
 							if n > 0 {
