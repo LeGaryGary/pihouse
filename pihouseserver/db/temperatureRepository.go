@@ -2,6 +2,7 @@ package db
 
 import (
 	"pihouse/data"
+	"strconv"
 
 	"github.com/jinzhu/gorm"
 )
@@ -33,7 +34,7 @@ func (repository *SQLTemperatureRepository) GetReadingByID(ID int) *data.Tempera
 
 func (repository *SQLTemperatureRepository) GetLatestForNode(nodeID int) *data.TemperatureReading {
 	var reading data.TemperatureReading
-	if err := repository.Connection.Preload("Node").Order("CreatedAt DESC").First(&reading, ID).Error; err != nil {
+	if err := repository.Connection.Preload("Node").Order("CreatedAt DESC").Where("NodeID = "+strconv.Itoa(nodeID)).First(&reading, ID).Error; err != nil {
 		panic(err)
 	}
 	return &reading
