@@ -11,9 +11,14 @@ import (
 
 	"github.com/Jordank321/pihouse/data"
 	"github.com/shopspring/decimal"
+
+	"github.com/d2r2/go-dht"
 )
 
 func getTemperature() decimal.Decimal {
+	temperature, humidity, retried, err :=
+		dht.ReadDHTxxWithRetry(dht.DHT11, 4, true, 10)
+
 	cmd := exec.Command("/opt/vc/bin/vcgencmd", "measure_temp")
 	var out bytes.Buffer
 	cmd.Stdout = &out
