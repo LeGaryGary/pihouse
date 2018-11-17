@@ -1,6 +1,7 @@
 package messageprocessing
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 
@@ -34,9 +35,8 @@ func ProcessIntent(shutdownChan <-chan os.Signal, intent <-chan []wit.Outcome) {
 		case <-shutdownChan:
 			return
 		case outcomes := <-intent:
-			for _, outcome := range outcomes {
-				log.Printf("%+v", outcome)
-			}
+			data, _ := json.MarshalIndent(outcomes, "", "    ")
+			log.Println(string(data[:]))
 		}
 	}
 }
