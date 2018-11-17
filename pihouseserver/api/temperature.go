@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"pihouse/data"
-	"pihouse/pihouseserver/db"
 	"strconv"
+
+	"github.com/Jordank321/pihouse/pihouseserver/db"
 
 	"github.com/go-chi/render"
 
@@ -20,6 +21,7 @@ func TemperatureRoutes(getTempRepo func() db.TemperatureRepository) *chi.Mux {
 	GetTempRepo = getTempRepo
 	router := chi.NewRouter()
 	router.Get("/", GetAllReadings)
+	router.Get("/latest/{nodeID}", GetLatestForNode)
 	router.Post("/", CreateReading)
 	router.Get("/{TemperatureReadingId}", GetReadingByID)
 	return router
@@ -33,6 +35,17 @@ func GetReadingByID(w http.ResponseWriter, r *http.Request) {
 	}
 	repo := GetTempRepo()
 	reading := repo.GetReadingByID(readingID)
+	render.JSON(w, r, reading)
+}
+
+// GetReadingByID retrieves a single temperature reading by its ID
+func GetLatestForNode(w http.ResponseWriter, r *http.Request) {
+	nodeID, err := strconv.Atoi(chi.URLParam(r, "nodeID"))
+	if err != nil {
+		panic(err.Error())
+	}
+	repo := GetTempRepo()
+	reading := repo.GetLatestForNode(nodeID)
 	render.JSON(w, r, reading)
 }
 
