@@ -35,7 +35,7 @@ func (repository *SQLTemperatureRepository) GetReadingByID(ID int) *data.Tempera
 
 func (repository *SQLTemperatureRepository) GetLatestForNode(nodeID int) *data.TemperatureReading {
 	var reading data.TemperatureReading
-	if err := repository.Connection.Preload("Node").Order("created_at DESC").Where("id = " + strconv.Itoa(nodeID)).First(&reading).Error; err != nil {
+	if err := repository.Connection.Preload("Node").Order("created_at DESC").Where("node_id = " + strconv.Itoa(nodeID)).First(&reading).Error; err != nil {
 		panic(err)
 	}
 	return &reading
