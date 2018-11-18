@@ -13,6 +13,6 @@ func main() {
 
 	nodeID := api.GetNodeID()
 
-	gocron.Every(1).Minute().Do(func() { api.PostCurrentTemperature(nodeID) })
+	gocron.Every(1).Minute().Do(func() { api.PostCurrentTemperatureAndHumidity(nodeID) })
 	<-gocron.Start()
 }
