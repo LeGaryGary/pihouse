@@ -4,9 +4,10 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"pihouse/pihouseserver/api"
-	"pihouse/pihouseserver/db"
 	"strings"
+
+	"github.com/Jordank321/pihouse/pihouseserver/api"
+	"github.com/Jordank321/pihouse/pihouseserver/db"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/spf13/viper"

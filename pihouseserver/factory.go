@@ -1,7 +1,7 @@
 package main
 
 import (
-	"pihouse/pihouseserver/db"
+	"github.com/Jordank321/pihouse/pihouseserver/db"
 
 	"github.com/jinzhu/gorm"
 )

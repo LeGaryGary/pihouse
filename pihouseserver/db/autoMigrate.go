@@ -1,7 +1,7 @@
 package db
 
 import (
-	"pihouse/data"
+	"github.com/Jordank321/pihouse/data"
 
 	"github.com/jinzhu/gorm"
 )

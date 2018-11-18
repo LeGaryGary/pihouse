@@ -3,8 +3,10 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"pihouse/data"
-	"pihouse/pihouseserver/db"
+
+	"github.com/Jordank321/pihouse/pihouseserver/db"
+
+	"github.com/Jordank321/pihouse/data"
 
 	"github.com/go-chi/render"
 
