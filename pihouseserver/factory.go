@@ -26,3 +26,11 @@ func ProvideNodeRepository() db.NodeRepository {
 	}
 	return &db.SQLNodeRepository{Connection: dbret}
 }
+
+func ProvideHumidityRepository() db.HumidityRepository {
+	dbret, err := ProvideDB()
+	if err != nil {
+		panic(err.Error())
+	}
+	return &db.SQLHumidityRepository{Connection: dbret}
+}

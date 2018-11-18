@@ -61,9 +61,10 @@ func Routes() *chi.Mux {
 	router.Route("/v1", func(r chi.Router) {
 		r.Mount("/api/temperature", api.TemperatureRoutes(ProvideTemperaureRepository))
 		r.Mount("/api/node", api.NodeRoutes(ProvideNodeRepository))
+		r.Mount("/api/humidity", api.HumidityRoutes(ProvideHumidityRepository))
 	})
 
-	// Rediret to UI
+	// Redirect to UI
 	router.Get("/", http.RedirectHandler("/ui", 301).ServeHTTP)
 	// Get path of current executable
 	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))

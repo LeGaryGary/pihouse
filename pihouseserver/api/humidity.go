@@ -28,7 +28,7 @@ func HumidityRoutes(getHumidityRepo func() db.HumidityRepository) *chi.Mux {
 	return router
 }
 
-// GetReadingByID retrieves a single Humidity reading by its ID
+// GetHumidityReadingByID retrieves a single Humidity reading by its ID
 func GetHumidityReadingByID(w http.ResponseWriter, r *http.Request) {
 	readingID, err := strconv.Atoi(chi.URLParam(r, "HumidityReadingId"))
 	if err != nil {
@@ -39,7 +39,7 @@ func GetHumidityReadingByID(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, reading)
 }
 
-// GetReadingByID retrieves a single Humidity reading by its ID
+// GetLatestHumidityForNode retrieves a single Humidity reading by its ID
 func GetLatestHumidityForNode(w http.ResponseWriter, r *http.Request) {
 	nodeID, err := strconv.Atoi(chi.URLParam(r, "nodeID"))
 	if err != nil {
@@ -50,14 +50,14 @@ func GetLatestHumidityForNode(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, reading)
 }
 
-// GetAllReadings retrieves all Humidity readings
+// GetAllHumidityReadings retrieves all Humidity readings
 func GetAllHumidityReadings(w http.ResponseWriter, r *http.Request) {
 	repo := GetHumidityRepo()
 	readings := repo.GetAllReadings()
 	render.JSON(w, r, readings)
 }
 
-// CreateReading creates a new Humidity reading
+// CreateHumidityReading creates a new Humidity reading
 func CreateHumidityReading(w http.ResponseWriter, r *http.Request) {
 	read := &data.HumidityReading{}
 	if err := json.NewDecoder(r.Body).Decode(read); err != nil {
