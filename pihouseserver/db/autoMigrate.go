@@ -7,5 +7,5 @@ import (
 )
 
 func AutoMigrate(db *gorm.DB) {
-	db.AutoMigrate(&data.Node{}, &data.TemperatureReading{})
+	db.AutoMigrate(&data.Node{}, &data.TemperatureReading{}, &data.HumidityReading{})
 }

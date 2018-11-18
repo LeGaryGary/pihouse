@@ -8,6 +8,6 @@ import (
 type TemperatureReading struct {
 	gorm.Model
 	Value  decimal.Decimal `sql:"type:decimal(4,2)"`
-	Node   Node
+	Node   *Node
 	NodeID uint `gorm:"index"`
 }
