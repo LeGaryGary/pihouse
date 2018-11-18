@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/Jordank321/pihouse/pihouseclient/api"
+
 	wit "github.com/jsgoecke/go-wit"
 )
 
@@ -37,6 +39,7 @@ func ProcessIntent(shutdownChan <-chan os.Signal, intent <-chan []wit.Outcome) {
 		case outcomes := <-intent:
 			data, _ := json.MarshalIndent(outcomes, "", "    ")
 			log.Println(string(data[:]))
+			api.PostAIIntent(outcomes)
 		}
 	}
 }
