@@ -14,9 +14,8 @@ import (
 	"github.com/d2r2/go-dht"
 )
 
-func getTemperatureAndHumidity() float32, float32 {
-	temperature, humidity, _, err :=
-		dht.ReadDHTxxWithRetry(dht.DHT11, 2, true, 10)
+func getTemperatureAndHumidity() (float32, float32) {
+	temperature, humidity, _, err := dht.ReadDHTxxWithRetry(dht.DHT11, 2, true, 10)
 
 	if err != nil {
 		log.Println(err.Error())
