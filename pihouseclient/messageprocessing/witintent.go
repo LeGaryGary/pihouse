@@ -10,9 +10,9 @@ import (
 	wit "github.com/jsgoecke/go-wit"
 )
 
-*wit.Client client
+var client *wit.Client
 
-func SetToken(token string){
+func SetToken(token string) {
 	client = wit.NewClient(token)
 }
 
