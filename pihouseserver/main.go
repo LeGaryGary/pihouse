@@ -62,6 +62,7 @@ func Routes() *chi.Mux {
 		r.Mount("/api/temperature", api.TemperatureRoutes(ProvideTemperaureRepository))
 		r.Mount("/api/node", api.NodeRoutes(ProvideNodeRepository))
 		r.Mount("/api/humidity", api.HumidityRoutes(ProvideHumidityRepository))
+		r.Mount("/api/ai", api.AIRoutes(ProvideAIRepository))
 	})
 
 	// Redirect to UI
