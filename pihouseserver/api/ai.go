@@ -37,13 +37,17 @@ func NewWitAIOutcome(w http.ResponseWriter, r *http.Request) {
 			Text: outcome.Text,
 		}
 
-		request.Intents = []data.Intent{
-			data.Intent{
-				Value:     "blah",
-				AIRequest: request,
-			},
+		request.Intents = []data.Intent{}
+
+		for entityName, entityValues := range outcome.Entities {
+			for _, entityValue := range entityValues {
+				value := (*entityValue.Value).(string)
+				request.Intents = append(request.Intents, data.Intent{
+					Value: (entityName + ":" + value),
+				})
+			}
 		}
+
 		repo.NewWitAIOutcome(request)
 	}
-
 }
