@@ -27,7 +27,7 @@ func AIRoutes(getAIRepo func() db.AIRepository) *chi.Mux {
 // GetReadingByID retrieves a single temperature reading by its ID
 func NewWitAIOutcome(w http.ResponseWriter, r *http.Request) {
 	outcomes := []wit.Outcome{}
-	if err := json.NewDecoder(r.Body).Decode(outcomes); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&outcomes); err != nil {
 		panic(err.Error())
 	}
 
