@@ -10,7 +10,11 @@ import (
 	wit "github.com/jsgoecke/go-wit"
 )
 
-var client = wit.NewClient(os.Getenv("WIT_ACCESS_TOKEN"))
+*wit.Client client
+
+func SetToken(token string){
+	client = wit.NewClient(token)
+}
 
 func GetIntent(shutdownChan <-chan os.Signal, msg <-chan string, intent chan []wit.Outcome) {
 	for {

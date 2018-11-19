@@ -9,7 +9,7 @@ import (
 
 func main() {
 	viper.AutomaticEnv()
-	api.APIAddress = viper.GetString("APIAddress")
+	api.APIAddress = viper.GetString("API_ADDRESS")
 
 	nodeID := api.GetNodeID()
 

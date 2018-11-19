@@ -26,7 +26,8 @@ import (
 
 func main() {
 	viper.AutomaticEnv()
-	api.APIAddress = viper.GetString("APIAddress")
+	api.APIAddress = viper.GetString("API_ADDRESS")
+	messageprocessing.SetToken(viper.GetString("WIT_ACCESS_TOKEN"))
 
 	shutdownChan := make(chan os.Signal, 1)
 	signal.Notify(shutdownChan, os.Interrupt)
