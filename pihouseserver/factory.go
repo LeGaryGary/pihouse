@@ -34,3 +34,11 @@ func ProvideHumidityRepository() db.HumidityRepository {
 	}
 	return &db.SQLHumidityRepository{Connection: dbret}
 }
+
+func ProvideAIRepository() db.AIRepository {
+	dbret, err := ProvideDB()
+	if err != nil {
+		panic(err.Error())
+	}
+	return &db.SQLAIRespository{Connection: dbret}
+}
