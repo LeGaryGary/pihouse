@@ -13,7 +13,8 @@ import (
 func PostAIIntent(outcomes []wit.Outcome) {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(outcomes)
-	res, err := http.Post("http://"+APIAddress+"/v1/api/ai/outcomes", "application/json; charset=utf-8", b)
+	hostname := os.Hostname
+	res, err := http.Post("http://"+APIAddress+"/v1/api/ai/outcomes/"+hostname, "application/json; charset=utf-8", b)
 	if err != nil {
 		panic(err)
 	}

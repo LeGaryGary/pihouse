@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Jordank321/pihouse/pihouseserver/control"
 	"github.com/Jordank321/pihouse/pihouseserver/db"
 
 	"github.com/jinzhu/gorm"
@@ -41,4 +42,13 @@ func ProvideAIRepository() db.AIRepository {
 		panic(err.Error())
 	}
 	return &db.SQLAIRespository{Connection: dbret}
+}
+
+var clientController control.ClientController
+
+func ProvideClientController() control.ClientController {
+	if clientController == nil {
+		clientController = &control.WebSocketClientController{}
+	}
+	return clientController
 }

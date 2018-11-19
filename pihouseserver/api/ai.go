@@ -8,19 +8,22 @@ import (
 
 	"github.com/jsgoecke/go-wit"
 
+	"github.com/Jordank321/pihouse/pihouseserver/control"
 	"github.com/Jordank321/pihouse/pihouseserver/db"
 
 	"github.com/go-chi/chi"
 )
 
 var (
-	GetAIRepo func() db.AIRepository
+	GetAIRepo           func() db.AIRepository
+	GetClientController func() control.ClientController
 )
 
-func AIRoutes(getAIRepo func() db.AIRepository) *chi.Mux {
+func AIRoutes(getAIRepo func() db.AIRepository, getClientController func() control.ClientController) *chi.Mux {
 	GetAIRepo = getAIRepo
+	GetClientController = getClientController
 	router := chi.NewRouter()
-	router.Post("/outcomes", NewWitAIOutcome)
+	router.Post("/outcomes/{NodeName}", NewWitAIOutcome)
 	return router
 }
 
@@ -49,5 +52,6 @@ func NewWitAIOutcome(w http.ResponseWriter, r *http.Request) {
 		}
 
 		repo.NewWitAIOutcome(request)
+		GetClientController().ProcessRequest(request)
 	}
 }
