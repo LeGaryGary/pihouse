@@ -4,6 +4,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-func GetSqlConnectionString() (connectionString string) {
+func GetSqlConnectionString() string {
 	return viper.GetString("SqlServerConnectionString")
 }

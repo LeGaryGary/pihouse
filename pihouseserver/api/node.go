@@ -13,24 +13,32 @@ import (
 	"github.com/go-chi/chi"
 )
 
-var (
-	GetNodeRepo func() db.NodeRepository
-)
+type NodeController struct {
+	nodeRepo db.NodeRepository
+}
 
-func NodeRoutes(getNodeRepo func() db.NodeRepository) *chi.Mux {
-	GetNodeRepo = getNodeRepo
+type NodeControllerMethod func(controller *NodeController, w http.ResponseWriter, r *http.Request)
+
+func NodeRoutes(getNodeRepo func() db.NodeRepository) (string, *chi.Mux) {
 	router := chi.NewRouter()
-	router.Get("/", GetAllNodes)
-	router.Post("/", CreateNode)
-	router.Get("/{NodeName}", GetNodeByName)
-	return router
+	doMethod := func(method NodeControllerMethod) func(w http.ResponseWriter, r *http.Request) {
+		controller := &NodeController{
+			nodeRepo: getNodeRepo(),
+		}
+		return func(w http.ResponseWriter, r *http.Request) {
+			method(controller, w, r)
+		}
+	}
+	router.Get("/", doMethod((*NodeController).GetAllNodes))
+	router.Post("/", doMethod((*NodeController).CreateNode))
+	router.Get("/{NodeName}", doMethod((*NodeController).GetNodeByName))
+	return "/node", router
 }
 
 // GetNodeByName retrieves a single node reading by its name
-func GetNodeByName(w http.ResponseWriter, r *http.Request) {
+func (controller *NodeController) GetNodeByName(w http.ResponseWriter, r *http.Request) {
 	nodeName := chi.URLParam(r, "NodeName")
-	repo := GetNodeRepo()
-	node := repo.GetNodeByName(nodeName)
+	node := controller.nodeRepo.GetNodeByName(nodeName)
 	if node == nil {
 		http.NotFound(w, r)
 		return
@@ -39,21 +47,19 @@ func GetNodeByName(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAllNodes retrieves all nodes
-func GetAllNodes(w http.ResponseWriter, r *http.Request) {
-	repo := GetNodeRepo()
-	nodes := repo.GetAllNodes()
+func (controller *NodeController) GetAllNodes(w http.ResponseWriter, r *http.Request) {
+	nodes := controller.nodeRepo.GetAllNodes()
 	render.JSON(w, r, nodes)
 }
 
 // CreateNode creates a new temperature reading
-func CreateNode(w http.ResponseWriter, r *http.Request) {
+func (controller *NodeController) CreateNode(w http.ResponseWriter, r *http.Request) {
 	node := &data.Node{}
 	if err := json.NewDecoder(r.Body).Decode(node); err != nil {
 		panic(err.Error())
 	}
 
-	repo := GetNodeRepo()
-	repo.AddNode(node)
+	controller.nodeRepo.AddNode(node)
 
 	response := make(map[string]string)
 	response["message"] = "Success: the node has been added"

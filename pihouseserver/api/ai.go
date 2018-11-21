@@ -14,30 +14,44 @@ import (
 	"github.com/go-chi/chi"
 )
 
-var (
-	GetAIRepo           func() db.AIRepository
-	GetClientController func() control.ClientController
-)
+type AIController struct {
+	aiRepo           db.AIRepository
+	clientController control.ClientController
+	nodeRepo         db.NodeRepository
+}
 
-func AIRoutes(getAIRepo func() db.AIRepository, getClientController func() control.ClientController) *chi.Mux {
-	GetAIRepo = getAIRepo
-	GetClientController = getClientController
+type AIControllerMethod func(controller *AIController, w http.ResponseWriter, r *http.Request)
+
+func AIRoutes(aiRepo func() db.AIRepository, clientController func() control.ClientController, nodeRepo func() db.NodeRepository) (string, *chi.Mux) {
 	router := chi.NewRouter()
-	router.Post("/outcomes/{NodeName}", NewWitAIOutcome)
-	return router
+	doMethod := func(method AIControllerMethod) func(w http.ResponseWriter, r *http.Request) {
+		controller := &AIController{
+			aiRepo:           aiRepo(),
+			clientController: clientController(),
+			nodeRepo:         nodeRepo(),
+		}
+		return func(w http.ResponseWriter, r *http.Request) {
+			method(controller, w, r)
+		}
+	}
+	router.Post("/outcomes/{NodeName}", doMethod((*AIController).NewWitAIOutcome))
+	return "/ai", router
 }
 
 // GetReadingByID retrieves a single temperature reading by its ID
-func NewWitAIOutcome(w http.ResponseWriter, r *http.Request) {
+func (controller *AIController) NewWitAIOutcome(w http.ResponseWriter, r *http.Request) {
 	outcomes := []wit.Outcome{}
 	if err := json.NewDecoder(r.Body).Decode(&outcomes); err != nil {
 		panic(err.Error())
 	}
 
-	repo := GetAIRepo()
+	nodeName := chi.URLParam(r, "NodeName")
+	node := controller.nodeRepo.GetNodeByName(nodeName)
+
 	for _, outcome := range outcomes {
 		request := &data.AIRequest{
 			Text: outcome.Text,
+			Node: node,
 		}
 
 		request.Intents = []data.Intent{}
@@ -51,7 +65,7 @@ func NewWitAIOutcome(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		repo.NewWitAIOutcome(request)
-		GetClientController().ProcessRequest(request)
+		controller.aiRepo.NewWitAIOutcome(request)
+		controller.clientController.ProcessRequest(request)
 	}
 }

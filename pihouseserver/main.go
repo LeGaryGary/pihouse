@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Jordank321/pihouse/pihouseserver/control"
+
 	"github.com/Jordank321/pihouse/pihouseserver/api"
 	"github.com/Jordank321/pihouse/pihouseserver/db"
 
@@ -34,6 +36,15 @@ func enableCors(h http.Handler) http.Handler {
 	})
 }
 
+type Controller interface {
+	Routes() (string, *chi.Mux)
+}
+
+func Mount(router chi.Router, controller Controller) {
+	prefix, mux := controller.Routes()
+	router.Mount(prefix, mux)
+}
+
 //Routes sets up the base routes for the api
 func Routes() *chi.Mux {
 	cors := cors.New(cors.Options{
@@ -58,11 +69,12 @@ func Routes() *chi.Mux {
 	)
 
 	// Routing for API
-	router.Route("/v1", func(r chi.Router) {
-		r.Mount("/api/temperature", api.TemperatureRoutes(ProvideTemperaureRepository))
-		r.Mount("/api/node", api.NodeRoutes(ProvideNodeRepository))
-		r.Mount("/api/humidity", api.HumidityRoutes(ProvideHumidityRepository))
-		r.Mount("/api/ai", api.AIRoutes(ProvideAIRepository, ProvideClientController))
+	router.Route("/v1/api", func(r chi.Router) {
+		r.Mount(api.TemperatureRoutes(ProvideTemperaureRepository))
+		r.Mount(api.NodeRoutes(ProvideNodeRepository))
+		r.Mount(api.HumidityRoutes(ProvideHumidityRepository))
+		r.Mount(api.AIRoutes(ProvideAIRepository, ProvideClientController, ProvideNodeRepository))
+		r.Mount(control.WebSocketRoutes(ProvideClientController))
 	})
 
 	// Redirect to UI
@@ -102,10 +114,7 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 func main() {
 	viper.AutomaticEnv()
 	router := Routes()
-	dbret, err := ProvideDB()
-	if err != nil {
-		panic(err.Error())
-	}
+	dbret := provideDB()
 	db.AutoMigrate(dbret)
 	log.Fatal(http.ListenAndServe(":1337", router))
 }

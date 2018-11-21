@@ -14,58 +14,63 @@ import (
 	"github.com/go-chi/chi"
 )
 
-var (
-	GetTempRepo func() db.TemperatureRepository
-)
+type TemperatureController struct {
+	temperatureRepo db.TemperatureRepository
+}
 
-func TemperatureRoutes(getTempRepo func() db.TemperatureRepository) *chi.Mux {
-	GetTempRepo = getTempRepo
+type TemperatureControllerMethod func(controller *TemperatureController, w http.ResponseWriter, r *http.Request)
+
+func TemperatureRoutes(getTempRepo func() db.TemperatureRepository) (string, *chi.Mux) {
 	router := chi.NewRouter()
-	router.Get("/", GetAllReadings)
-	router.Get("/latest/{nodeID}", GetLatestForNode)
-	router.Post("/", CreateReading)
-	router.Get("/{TemperatureReadingId}", GetReadingByID)
-	return router
+	doMethod := func(method TemperatureControllerMethod) func(w http.ResponseWriter, r *http.Request) {
+		controller := &TemperatureController{
+			temperatureRepo: getTempRepo(),
+		}
+		return func(w http.ResponseWriter, r *http.Request) {
+			method(controller, w, r)
+		}
+	}
+	router.Get("/", doMethod((*TemperatureController).GetAllReadings))
+	router.Get("/latest/{nodeID}", doMethod((*TemperatureController).GetLatestForNode))
+	router.Post("/", doMethod((*TemperatureController).CreateReading))
+	router.Get("/{TemperatureReadingId}", doMethod((*TemperatureController).GetReadingByID))
+	return "/temperature", router
 }
 
 // GetReadingByID retrieves a single temperature reading by its ID
-func GetReadingByID(w http.ResponseWriter, r *http.Request) {
+func (controller *TemperatureController) GetReadingByID(w http.ResponseWriter, r *http.Request) {
 	readingID, err := strconv.Atoi(chi.URLParam(r, "TemperatureReadingId"))
 	if err != nil {
 		panic(err.Error())
 	}
-	repo := GetTempRepo()
-	reading := repo.GetReadingByID(readingID)
+	reading := controller.temperatureRepo.GetReadingByID(readingID)
 	render.JSON(w, r, reading)
 }
 
 // GetReadingByID retrieves a single temperature reading by its ID
-func GetLatestForNode(w http.ResponseWriter, r *http.Request) {
+func (controller *TemperatureController) GetLatestForNode(w http.ResponseWriter, r *http.Request) {
 	nodeID, err := strconv.Atoi(chi.URLParam(r, "nodeID"))
 	if err != nil {
 		panic(err.Error())
 	}
-	repo := GetTempRepo()
-	reading := repo.GetLatestForNode(nodeID)
+	reading := controller.temperatureRepo.GetLatestForNode(nodeID)
 	render.JSON(w, r, reading)
 }
 
 // GetAllReadings retrieves all temperature readings
-func GetAllReadings(w http.ResponseWriter, r *http.Request) {
-	repo := GetTempRepo()
-	readings := repo.GetAllReadings()
+func (controller *TemperatureController) GetAllReadings(w http.ResponseWriter, r *http.Request) {
+	readings := controller.temperatureRepo.GetAllReadings()
 	render.JSON(w, r, readings)
 }
 
 // CreateReading creates a new temperature reading
-func CreateReading(w http.ResponseWriter, r *http.Request) {
+func (controller *TemperatureController) CreateReading(w http.ResponseWriter, r *http.Request) {
 	read := &data.TemperatureReading{}
 	if err := json.NewDecoder(r.Body).Decode(read); err != nil {
 		panic(err.Error())
 	}
 
-	repo := GetTempRepo()
-	repo.AddReading(read)
+	controller.temperatureRepo.AddReading(read)
 
 	response := make(map[string]string)
 	response["message"] = "Success: the reading has been added"
