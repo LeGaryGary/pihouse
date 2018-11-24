@@ -11,5 +11,6 @@ func AutoMigrate(db *gorm.DB) {
 		&data.TemperatureReading{},
 		&data.HumidityReading{},
 		&data.AIRequest{},
-		&data.Intent{})
+		&data.Intent{},
+		&data.ActionMaping{})
 }

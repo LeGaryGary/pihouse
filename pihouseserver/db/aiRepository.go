@@ -7,6 +7,7 @@ import (
 
 type AIRepository interface {
 	NewWitAIOutcome(request *data.AIRequest)
+	FindAction(intentValue string) *data.Action
 }
 
 type SQLAIRespository struct {
@@ -19,4 +20,16 @@ func (repository *SQLAIRespository) Close() {
 
 func (repository *SQLAIRespository) NewWitAIOutcome(request *data.AIRequest) {
 	repository.Connection.Create(request)
+}
+
+func (repository *SQLAIRespository) FindAction(intentValue string) *data.Action {
+	count := 0
+	repository.Connection.Where("intent_value = " + intentValue).Find(&[]*data.ActionMaping{}).Count(&count)
+	if count > 0 {
+		action := data.ActionMaping{}
+		repository.Connection.Where("intent_value = " + intentValue).First(&action)
+		return &action.Action
+	}
+
+	return nil
 }

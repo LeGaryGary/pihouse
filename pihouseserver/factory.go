@@ -46,7 +46,7 @@ var clientController control.ClientController
 
 func ProvideClientController() control.ClientController {
 	if clientController == nil {
-		clientController = &control.WebSocketClientController{}
+		clientController = control.NewWebSocketClientController(ProvideAIRepository())
 	}
 	return clientController
 }

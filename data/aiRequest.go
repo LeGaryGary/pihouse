@@ -2,6 +2,7 @@ package data
 
 import (
 	"github.com/jinzhu/gorm"
+	"github.com/shopspring/decimal"
 )
 
 type AIRequest struct {
@@ -14,6 +15,7 @@ type AIRequest struct {
 
 type Intent struct {
 	Value       string
+	Confidence  decimal.Decimal `sql:"type:decimal(4,2)"`
 	AIRequest   *AIRequest
 	AIRequestID uint `gorm:"index"`
 }
