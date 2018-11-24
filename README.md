@@ -48,6 +48,10 @@ export WIT_ACCESS_TOKEN=YOUR_WIT_AI_TOKEN_HERE
 (command which pipes 16bit little endian audio here examples coming soon) | go run github.com/Jordank321/pihouse/pihouseclient/voice
 ```
 
+### Running on Windows
+
+Using Fmeadia it might be possible to achive a similar result 
+
 ## pihouseclient/environment
 This executable is used to update the pihouseserver on the temperature, humidity, bluetooth devices nearby and motions sensor input
 
