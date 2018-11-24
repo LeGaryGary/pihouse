@@ -4,24 +4,32 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/Jordank321/pihouse/data"
 	"github.com/shopspring/decimal"
-
-	"github.com/d2r2/go-dht"
 )
 
-func getTemperatureAndHumidity() (float32, float32) {
-	temperature, humidity, _, err := dht.ReadDHTxxWithRetry(dht.DHT11, 2, true, 10)
-
+func getTemperatureAndHumidity() (decimal.Decimal, decimal.Decimal) {
+	process := exec.Command("temphumidreader")
+	output, err := process.Output()
 	if err != nil {
-		log.Println(err.Error())
+		panic(err)
 	}
-
-	return temperature, humidity
+	outString := string(output)
+	outputs := strings.Split(outString, " ")
+	temp, err := decimal.NewFromString(outputs[0])
+	if err != nil {
+		panic(err)
+	}
+	humidity, err := decimal.NewFromString(outputs[1])
+	if err != nil {
+		panic(err)
+	}
+	return temp, humidity
 }
 
 func postTemperature(val decimal.Decimal, nodeID uint) {
@@ -49,6 +57,6 @@ func postHumidity(val decimal.Decimal, nodeID uint) {
 // PostCurrentTemperature does what is says on the tin you twats
 func PostCurrentTemperatureAndHumidity(nodeID uint) {
 	temp, humid := getTemperatureAndHumidity()
-	postTemperature(decimal.NewFromFloat32(temp), nodeID)
-	postHumidity(decimal.NewFromFloat32(humid), nodeID)
+	postTemperature(temp, nodeID)
+	postHumidity(humid, nodeID)
 }
