@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -19,7 +20,10 @@ func getTemperatureAndHumidity() (decimal.Decimal, decimal.Decimal) {
 	if err != nil {
 		panic(err)
 	}
+	log.Println("test")
+	log.Println(len(output))
 	outString := string(output)
+	log.Println(outString)
 	outputs := strings.Split(outString, " ")
 	temp, err := decimal.NewFromString(outputs[0])
 	if err != nil {

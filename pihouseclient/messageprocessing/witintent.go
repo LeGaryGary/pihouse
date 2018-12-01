@@ -3,7 +3,6 @@ package messageprocessing
 import (
 	"encoding/json"
 	"log"
-	"os"
 
 	"github.com/Jordank321/pihouse/pihouseclient/api"
 
@@ -16,11 +15,9 @@ func SetToken(token string) {
 	client = wit.NewClient(token)
 }
 
-func GetIntent(shutdownChan <-chan os.Signal, msg <-chan string, intent chan []wit.Outcome) {
+func GetIntent(msg <-chan string, intent chan []wit.Outcome) {
 	for {
 		select {
-		case <-shutdownChan:
-			return
 		case msgIn := <-msg:
 			// Process a text message
 			request := &wit.MessageRequest{}
@@ -35,11 +32,9 @@ func GetIntent(shutdownChan <-chan os.Signal, msg <-chan string, intent chan []w
 	}
 }
 
-func ProcessIntent(shutdownChan <-chan os.Signal, intent <-chan []wit.Outcome) {
+func ProcessIntent(intent <-chan []wit.Outcome) {
 	for {
 		select {
-		case <-shutdownChan:
-			return
 		case outcomes := <-intent:
 			data, _ := json.MarshalIndent(outcomes, "", "    ")
 			log.Println(string(data[:]))

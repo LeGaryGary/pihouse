@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/Jordank321/pihouse/data"
 
 	"github.com/jsgoecke/go-wit"
@@ -60,7 +62,8 @@ func (controller *AIController) NewWitAIOutcome(w http.ResponseWriter, r *http.R
 			for _, entityValue := range entityValues {
 				value := (*entityValue.Value).(string)
 				request.Intents = append(request.Intents, data.Intent{
-					Value: (entityName + ":" + value),
+					Value:      (entityName + ":" + value),
+					Confidence: decimal.NewFromFloat32(outcome.Confidence),
 				})
 			}
 		}

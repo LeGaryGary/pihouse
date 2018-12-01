@@ -1,8 +1,11 @@
 package control
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/Jordank321/pihouse/data"
 
 	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
@@ -17,10 +20,10 @@ type WebSocketControllerMethod func(controller *WebSocketController, w http.Resp
 func WebSocketRoutes(getClientController func() ClientController) (string, *chi.Mux) {
 	router := chi.NewRouter()
 	doMethod := func(method WebSocketControllerMethod) func(w http.ResponseWriter, r *http.Request) {
-		controller := &WebSocketController{
-			clientController: getClientController(),
-		}
 		return func(w http.ResponseWriter, r *http.Request) {
+			controller := &WebSocketController{
+				clientController: getClientController(),
+			}
 			method(controller, w, r)
 		}
 	}
@@ -37,14 +40,22 @@ func (controller *WebSocketController) InitiateWebsocket(w http.ResponseWriter, 
 		return
 	}
 	defer c.Close()
+
 	stop := make(chan bool)
-	controller.clientController.AddClient(&WebSocketClient{
+	client := &WebSocketClient{
 		connection: c,
 		stop:       stop,
+	}
+	c.SetCloseHandler(func(mt int, message string) error {
+		stop <- true
+		return nil
 	})
+
+	controller.clientController.AddClient(client)
 	for {
 		select {
 		case <-stop:
+			client.SetAsClosed()
 			return
 		default:
 			mt, message, _ := c.ReadMessage()
@@ -52,11 +63,15 @@ func (controller *WebSocketController) InitiateWebsocket(w http.ResponseWriter, 
 				log.Println("websocket read:", err)
 				return
 			}
-			log.Printf("websocket recv from %s: %s", c.RemoteAddr().String(), message)
-			c.WriteMessage(mt, message)
-			if err != nil {
-				log.Println("websocket write:", err)
-				return
+			log.Printf("websocket recv %d from %s: %s", mt, c.RemoteAddr().String(), message)
+			if mt == websocket.BinaryMessage {
+
+				actions := []data.Action{}
+				err := json.Unmarshal(message, &actions)
+				if err != nil {
+					log.Panicln(err)
+				}
+				client.applicableActions = actions
 			}
 		}
 

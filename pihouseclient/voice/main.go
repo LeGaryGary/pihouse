@@ -11,7 +11,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/signal"
 	"strconv"
 	"strings"
 
@@ -29,14 +28,11 @@ func main() {
 	api.APIAddress = viper.GetString("API_ADDRESS")
 	messageprocessing.SetToken(viper.GetString("WIT_ACCESS_TOKEN"))
 
-	shutdownChan := make(chan os.Signal, 1)
-	signal.Notify(shutdownChan, os.Interrupt)
-
 	messageChan := make(chan string)
-	go Listen(shutdownChan, messageChan)
+	go Listen(messageChan)
 	intentChan := make(chan []wit.Outcome)
-	go messageprocessing.GetIntent(shutdownChan, messageChan, intentChan)
-	messageprocessing.ProcessIntent(shutdownChan, intentChan)
+	go messageprocessing.GetIntent(messageChan, intentChan)
+	messageprocessing.ProcessIntent(intentChan)
 }
 
 type keywordFlags []*porcupine.Keyword
@@ -65,7 +61,7 @@ func (kf *keywordFlags) String() string {
 	return sb.String()
 }
 
-func Listen(shutdownChan <-chan os.Signal, messageChan chan string) {
+func Listen(messageChan chan string) {
 	log.Printf("Starting!")
 	var input string
 	var modelPath string
@@ -100,10 +96,10 @@ func Listen(shutdownChan <-chan os.Signal, messageChan chan string) {
 		audio = bufio.NewReader(f)
 	}
 
-	listen(p, audio, shutdownChan, messageChan)
+	listen(p, audio, messageChan)
 }
 
-func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signal, messageChan chan string) {
+func listen(p porcupine.Porcupine, audio io.Reader, messageChan chan string) {
 
 	// == Setup google voice API
 	ctx := context.Background()
@@ -121,9 +117,6 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 	log.Printf("listening...")
 	for {
 		select {
-		case <-shutdownChan:
-			log.Printf("shutting down")
-			return
 		default:
 			if err := readAudioFrame(audio, buffer, audioFrame); err != nil {
 				log.Printf("error: %+v", err)
@@ -166,8 +159,6 @@ func listen(p porcupine.Porcupine, audio io.Reader, shutdownChan <-chan os.Signa
 					for {
 						select {
 						case <-apiStreamStopChan:
-							return
-						case <-shutdownChan:
 							return
 						default:
 							n, err := os.Stdin.Read(buf)
