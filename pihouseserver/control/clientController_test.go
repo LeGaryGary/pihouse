@@ -14,7 +14,7 @@ func (testRepo *TestAIRepository) NewWitAIOutcome(request *data.AIRequest) {
 
 }
 func (testRepo *TestAIRepository) FindActions(intentValue string) []data.ActionMaping {
-
+	return []data.ActionMaping{}
 }
 
 func TestWebSocketClientController_ProcessRequest(t *testing.T) {
