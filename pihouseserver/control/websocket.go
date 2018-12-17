@@ -47,33 +47,36 @@ func (controller *WebSocketController) InitiateWebsocket(w http.ResponseWriter, 
 		stop:       stop,
 	}
 	c.SetCloseHandler(func(mt int, message string) error {
-		stop <- true
+		client.SetAsClosed()
 		return nil
 	})
 
 	controller.clientController.AddClient(client)
 	for {
-		select {
-		case <-stop:
-			client.SetAsClosed()
+		// select {
+		// case <-stop:
+		// 	client.SetAsClosed()
+		// 	return
+		// default:
+		mt, message, _ := c.ReadMessage()
+		if err != nil {
+			log.Println("websocket read:", err)
 			return
-		default:
-			mt, message, _ := c.ReadMessage()
-			if err != nil {
-				log.Println("websocket read:", err)
-				return
-			}
-			log.Printf("websocket recv %d from %s: %s", mt, c.RemoteAddr().String(), message)
-			if mt == websocket.BinaryMessage {
-
-				actions := []data.Action{}
-				err := json.Unmarshal(message, &actions)
-				if err != nil {
-					log.Panicln(err)
-				}
-				client.applicableActions = actions
-			}
 		}
+		log.Printf("websocket recv %d from %s: %s", mt, c.RemoteAddr().String(), message)
+		if mt == websocket.BinaryMessage {
+
+			actions := []data.Action{}
+			err := json.Unmarshal(message, &actions)
+			if err != nil {
+				log.Panicln(err)
+			}
+			client.applicableActions = actions
+		}
+		if mt == -1 {
+			break
+		}
+		//}
 
 	}
 }

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/Jordank321/pihouse/data"
 	"github.com/Jordank321/pihouse/pihouseclient/speech"
@@ -32,6 +33,16 @@ func ConnectToServerWebsocket(actions *[]data.Action) <-chan data.Action {
 	actionChan := make(chan data.Action)
 	go ReceiveCommands(actionChan)
 	return actionChan
+}
+
+func DisconnectFromWebsocket() {
+	if websocketConnection == nil {
+		return
+	}
+
+	websocketConnection.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	time.Sleep(time.Second)
+	websocketConnection.Close()
 }
 
 func ReceiveCommands(actionChan chan<- data.Action) {

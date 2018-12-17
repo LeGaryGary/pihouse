@@ -33,7 +33,7 @@ func (client *WebSocketClient) SendAction(action data.Action) {
 	}
 	err = client.connection.WriteMessage(websocket.BinaryMessage, b)
 	if err != nil {
-		log.Panicln(err.Error())
+		log.Print(err.Error())
 	}
 }
 
@@ -43,6 +43,7 @@ func (client *WebSocketClient) String() string {
 
 func (client *WebSocketClient) SetAsClosed() {
 	client.closed = true
+	client.connection.Close()
 }
 
 //<3
