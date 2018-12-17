@@ -10,19 +10,14 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func ConnectToServerWebsocket() {
+func ConnectToServerWebsocket(actions *[]data.Action) <-chan data.Action {
 	if websocketConnection != nil {
-		return
+		return nil
 	}
 
 	conn, _, err := websocket.DefaultDialer.Dial("ws://"+APIAddress+"/v1/api/websocket", nil)
 	if err != nil {
 		log.Panicf(err.Error())
-	}
-
-	actions := []data.Action{
-		data.LivingRoomLightsOn,
-		data.HeatingOn,
 	}
 
 	b, err := json.Marshal(actions)
@@ -34,10 +29,12 @@ func ConnectToServerWebsocket() {
 		log.Panicln(err.Error())
 	}
 	websocketConnection = conn
-	go ReceiveCommands()
+	actionChan := make(chan data.Action)
+	go ReceiveCommands(actionChan)
+	return actionChan
 }
 
-func ReceiveCommands() {
+func ReceiveCommands(actionChan chan<- data.Action) {
 	for {
 		_, message, err := websocketConnection.ReadMessage()
 		if err != nil {
@@ -50,6 +47,7 @@ func ReceiveCommands() {
 			log.Panicln(err.Error())
 		}
 
+		actionChan <- action
 		log.Println("Oh look, the server told me to do " + action.String())
 		speech.Say("Oh look, the server told me to do " + action.String())
 	}
