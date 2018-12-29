@@ -7,6 +7,6 @@ import (
 )
 
 func main() {
-	temperature, humidity, _, _ := dht.ReadDHTxxWithRetry(dht.DHT11, 2, true, 10)
+	temperature, humidity, _, _ := dht.ReadDHTxxWithRetry(dht.DHT11, 4, true, 10)
 	fmt.Printf("%f %f", temperature, humidity)
 }
