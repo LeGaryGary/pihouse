@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Jordank321/pihouse/pihouseclient/temphumidreader/dht"
+	dht "github.com/d2r2/go-dht"
 )
 
 func main() {

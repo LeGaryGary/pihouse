@@ -20,9 +20,8 @@ func getTemperatureAndHumidity() (decimal.Decimal, decimal.Decimal) {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("test")
-	log.Println(len(output))
-	outString := string(output)
+	outLines := strings.Split(string(output), "\n")
+	outString := outLines[len(outLines)-1]
 	log.Println(outString)
 	outputs := strings.Split(outString, " ")
 	temp, err := decimal.NewFromString(outputs[0])
