@@ -193,9 +193,6 @@ func decodeDHTxxPulses(sensorType SensorType, pulses []Pulse) (temperature float
 				"calculated checksum(%v=%v+%v+%v+%v)",
 			sum, calcSum, b0, b1, b2, b3))
 		return -1, -1, err
-	} else {
-		//lg.Debugf("CRCs verified: checksum from sensor(%v) = calculated checksum(%v=%v+%v+%v+%v)",
-			sum, calcSum, b0, b1, b2, b3)
 	}
 	// Debug output for 5 bytes
 	//lg.Debugf("Decoded from DHTxx sensor: [%d, %d, %d, %d, %d]", b0, b1, b2, b3, sum)
